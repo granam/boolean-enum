@@ -1,111 +1,46 @@
-Doctrine Boolean enum
-=====================
+# Enumeration with boolean values
 
-[![Build Status](https://travis-ci.org/jaroslavtyc/doctrineum-boolean.svg?branch=master)](https://travis-ci.org/jaroslavtyc/doctrineum-boolean)
-[![Test Coverage](https://codeclimate.com/github/jaroslavtyc/doctrineum-boolean/badges/coverage.svg)](https://codeclimate.com/github/jaroslavtyc/doctrineum-boolean/coverage)
-[![License](https://poser.pugx.org/doctrineum/boolean/license)](https://packagist.org/packages/doctrineum/boolean)
+## <span id="usage">Usage</span>
+1. [Use enum](#use-enum)
+2. [NULL is NULL, not Enum](#null-is-null-enum-can-not-hold-it)
+3. [Installation](#installation)
 
-## About
-Adds [Enum](http://en.wikipedia.org/wiki/Enumerated_type) to [Doctrine ORM](http://www.doctrine-project.org/)
-(can be used as a `@Column(type="boolean_enum")`).
+## Use enum
+```php
+<?php
+use \Granam\BooleanEnum\BooleanEnum;
 
-##Usage
+$enum = BooleanEnum::getEnum(true);
+echo $enum->getValue(); // 1
+var_dump($enum->getValue()); // (bool) true
+var_dump($enum->is(true)); // true
+var_dump($enum->is(false)); // false
+var_dump($enum->is(1)); // false
+var_dump($enum->is($enum)); // true
+```
+
+## NULL is NULL, enum can not hold it
+You **can not** create BooleanEnum with NULL value. Just use NULL directly for such value.
 
 ```php
 <?php
-
-use Doctrine\ORM\Mapping as ORM;
-use Doctrineum\Boolean\BooleanEnum;
-
-/**
- * @ORM\Entity()
- */
-class Account
-{
-    /**
-     * @var int
-     * @ORM\Id() @ORM\GeneratedValue(strategy="AUTO") @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * @var BooleanEnum
-     * @ORM\Column(type="boolean_enum")
-     */
-    private $activated;
-    
-    public function __construct()
-    {
-        $this->activated = BooleanEnum::getEnum(false);
-    }
-
-    /**
-     * @return BooleanEnum
-     */
-    public function getActivated()
-    {
-        return $this->activated;
-    }
-
-    /**
-     * @param BooleanEnum $activated
-     */
-    public function setActivated(BooleanEnum $activated)
-    {
-        $this->activated = $activated;
-    }
+try {
+    \Granam\BooleanEnum\BooleanEnum::getEnum(null);
+} catch(\Granam\BooleanEnum\Exceptions\UnexpectedValueToConvert $unexpectedValueToConvert) {
+    echo $unexpectedValueToConvert->getMessage(); // Expected boolean or object with __toString method on strict mode, got NULL
 }
-
-$account = new Account();
-$account->setActivated(BooleanEnum::getEnum(true));
-
-/** @var \Doctrine\ORM\EntityManager $entityManager */
-$entityManager->persist($account);
-$entityManager->flush();
-$entityManager->clear();
-
-/** @var Account[] $accounts */
-$accounts = $entityManager->createQuery(
-    "SELECT a FROM Account a WHERE a.activated"
-)->getResult();
-
-var_dump($accounts[0]->getActivated()->getValue()); // true;
 ```
 
-##Installation
+## Installation
 
-Add it to your list of Composer dependencies (or by manual edit your composer.json, the `require` section)
-
-```sh
-composer require jaroslavtyc/doctrineum-boolean
+```bash
+composer.phar require granam/boolean-enum
 ```
 
-Note: NULL is prohibited. NULL means "I don't know" and that is not FALSE neither TRUE.
-If you want to use NULL, as lets say FALSE, do that conversion by your own, because you are the only one "who knows".
+or manually edit composer.json at your project and `"require":` block (extend existing)
 
-## Doctrine integration
-
-Register new DBAL type:
-
-```php
-<?php
-
-use Doctrineum\Boolean\BooleanEnumType;
-
-BooleanEnumType::registerSelf();
-```
-
-When using Symfony with Doctrine you can do the same as above by configuration:
-
-```yaml
-# app/config/config.yml
-
-# Doctrine Configuration
-doctrine:
-    dbal:
-        # ...
-        mapping_types:
-            boolean_enum: boolean_enum
-        types:
-            boolean_enum: Doctrineum\Boolean\BooleanEnumType
+```json
+"require": {
+    "granam/boolean-enum": "dev-master"
+}
 ```
