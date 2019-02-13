@@ -17,7 +17,7 @@ class BooleanEnum extends ScalarEnum implements BooleanEnumInterface
      *
      * @param mixed $enumValue
      * @return bool
-     * @throws \Granam\BooleanEnum\Exceptions\UnexpectedValueToConvert
+     * @throws \Granam\BooleanEnum\Exceptions\WrongValueForBooleanEnum
      */
     protected static function convertToEnumFinalValue($enumValue): bool
     {
@@ -25,7 +25,7 @@ class BooleanEnum extends ScalarEnum implements BooleanEnumInterface
             return ToBoolean::toBoolean($enumValue, true /* strict */);
         } catch (\Granam\Boolean\Tools\Exceptions\WrongParameterType $exception) {
             // wrapping the exception by local one
-            throw new Exceptions\UnexpectedValueToConvert($exception->getMessage(), $exception->getCode(), $exception);
+            throw new Exceptions\WrongValueForBooleanEnum($exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
